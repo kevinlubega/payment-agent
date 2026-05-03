@@ -2,7 +2,10 @@ import fs from "fs";
 import path from "path";
 import { isAddress } from "viem";
 
-const LEDGER_PATH = path.join(process.cwd(), "daily-spend.json");
+// Vercel's filesystem is read-only except /tmp; fall back there in production
+const LEDGER_PATH = process.env.VERCEL
+  ? "/tmp/daily-spend.json"
+  : path.join(process.cwd(), "daily-spend.json");
 const MAX_SINGLE_PAYMENT = 20;
 const MAX_DAILY_TOTAL = 100;
 
