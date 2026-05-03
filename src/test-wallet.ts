@@ -4,8 +4,9 @@ dotenv.config();
 import { account, getUSDCBalance } from "./wallet";
 
 async function main() {
-  console.log("Wallet address:", account.address);
-  await getUSDCBalance(account.address);
+  const acc = account();
+  console.log("Wallet address:", acc.address);
+  await getUSDCBalance(acc.address);
 }
 
 main().catch(console.error);

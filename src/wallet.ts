@@ -40,18 +40,31 @@ function loadAccount() {
   return privateKeyToAccount(key as `0x${string}`);
 }
 
-const account = loadAccount();
+// Lazily initialised — avoids crashing at module load when env vars
+// aren't present (e.g. during Vercel's build step)
+let _account: ReturnType<typeof loadAccount> | null = null;
+let _walletClient: ReturnType<typeof createWalletClient> | null = null;
+
+function getAccount() {
+  if (!_account) _account = loadAccount();
+  return _account;
+}
 
 const publicClient = createPublicClient({
   chain: baseSepolia,
   transport: http(),
 });
 
-const walletClient = createWalletClient({
-  account,
-  chain: baseSepolia,
-  transport: http(),
-});
+function getWalletClient() {
+  if (!_walletClient) {
+    _walletClient = createWalletClient({
+      account: getAccount(),
+      chain: baseSepolia,
+      transport: http(),
+    });
+  }
+  return _walletClient;
+}
 
 function log(message: string) {
   console.log(`[${new Date().toISOString()}] ${message}`);
@@ -78,11 +91,13 @@ export async function sendUSDC(
 
   log(`Sending ${amountInDollars} USDC to ${toAddress}...`);
 
-  const txHash = await walletClient.writeContract({
+  const txHash = await getWalletClient().writeContract({
     address: USDC_ADDRESS,
     abi: USDC_ABI,
     functionName: "transfer",
     args: [toAddress, amount],
+    chain: baseSepolia,
+    account: getAccount(),
   });
 
   log(`Transaction submitted: txHash=${txHash}`);
@@ -96,4 +111,4 @@ export async function sendUSDC(
   return txHash;
 }
 
-export { account };
+export { getAccount as account };
