@@ -1,15 +1,11 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "api/index.ts",
-      "use": "@vercel/node"
-    }
+  "outputDirectory": "public",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/api/index" }
   ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/api/index"
+  "functions": {
+    "api/index.ts": {
+      "maxDuration": 30
     }
-  ]
+  }
 }
