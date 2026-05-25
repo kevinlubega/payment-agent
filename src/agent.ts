@@ -95,7 +95,7 @@ export async function runPaymentAgent(
   console.log(`  Memo      : ${memo}`);
 
   // Safety checks — address validity, single-payment cap, daily cap
-  const check = checkLimits(recipient, amount);
+  const check = await checkLimits(recipient, amount);
   if (!check.allowed) {
     console.warn(`[Agent] Blocked: ${check.error}`);
     return { success: false, error: check.error };
@@ -106,7 +106,7 @@ export async function runPaymentAgent(
   try {
     const txHash = await sendUSDC(recipient as Address, amount);
 
-    recordPayment(amount);
+    await recordPayment({ amount, recipient, memo, txHash, success: true });
 
     const result: PaymentResult = {
       success: true,

@@ -15,8 +15,14 @@ app.get("/health", (_req, res) => {
   res.json({ status: "ok" });
 });
 
-app.get("/limits", (_req, res) => {
-  res.json(getLimitsStatus());
+app.get("/limits", async (_req, res) => {
+  try {
+    const status = await getLimitsStatus();
+    res.json(status);
+  } catch (err) {
+    const error = err instanceof Error ? err.message : String(err);
+    res.status(500).json({ error });
+  }
 });
 
 app.get("/", (_req, res) => {
